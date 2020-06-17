@@ -7,103 +7,103 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import axios from 'axios';
+import { axiosWithAuth } from '../utils/axiosWithAuth'
+import { useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
-  form: {
-    width: '100%', // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
-  },
-  submit: {
-    margin: theme.spacing(3, 0, 2),
-  },
+    paper: {
+        marginTop: theme.spacing(8),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    avatar: {
+        margin: theme.spacing(1),
+        backgroundColor: theme.palette.secondary.main,
+    },
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing(1),
+    },
+    submit: {
+        margin: theme.spacing(3, 0, 2),
+    },
 }));
 
 
 export default function SignIn() {
-  const classes = useStyles();
-  const initialState = {
-      credentials: {
-          username: '',
-          password: ''
-      }
-  }
+    let history = useHistory();
+    const classes = useStyles();
+    const initialState = {
+        username: '',
+        password: ''
+    }
 
-  const [state, setState] = useState(initialState)
+    const [state, setState] = useState(initialState)
 
-  const inputHandler = event => {
-      setState({
-          credentials: {
-              ...state,
-              [event.target.name]: event.target.value
-          }
-      });
-  };
+    const inputHandler = event => {
+        setState({
+            ...state,
+            [event.target.name]: event.target.value
+        });
+    };
 
-  const loginHandler = event => {
-      event.preventDefault();
-      axios.post('http://localhost:5000/api/login', state.credentials)
-      .then(res => {
-          console.log(res)
-          window.localStorage.setItem('token', res.data.payload)
-      })
-      .catch(err => console.log(err))
-  }
+    const loginHandler = event => {
+        event.preventDefault();
+        axiosWithAuth()
+            .post('/api/login', state)
+            .then(res => {
+                console.log(res)
+                window.localStorage.setItem('token', res.data.payload)
+                history.push('/protected')
+            })
+            .catch(err => console.log(err))
+    }
 
-  return (
-    <Container component="main" maxWidth="xs">
-      <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlinedIcon />
-        </Avatar>
-        <Typography component="h1" variant="h5">
-          Login
+    return (
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Avatar className={classes.avatar}>
+                    <LockOutlinedIcon />
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    Login
         </Typography>
-        <form className={classes.form} noValidate onSubmit={loginHandler}>
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            id="username"
-            label="Username"
-            name="username"
-            autoFocus
-            onChange={inputHandler}
-          />
-          <TextField
-            variant="outlined"
-            margin="normal"
-            required
-            fullWidth
-            name="password"
-            label="Password"
-            type="password"
-            id="password"
-            onChange={inputHandler}
-          />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="primary"
-            className={classes.submit}
-          >
-            Sign In
+                <form className={classes.form} noValidate onSubmit={loginHandler}>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="username"
+                        label="Username"
+                        name="username"
+                        autoFocus
+                        onChange={inputHandler}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        type="password"
+                        id="password"
+                        onChange={inputHandler}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className={classes.submit}
+                    >
+                        Sign In
           </Button>
-        </form>
-      </div>
-    </Container>
-  );
+                </form>
+            </div>
+        </Container>
+    );
 }
